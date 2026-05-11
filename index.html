@@ -201,9 +201,76 @@
   .todo-need-coach { color:var(--green); font-size:11px; padding:1px 6px; background:rgba(45,184,122,.12); border-radius:4px; }
   .todo-section-label { padding:6px 10px; font-size:11px; font-weight:600; color:var(--text-dim); background:rgba(60,191,182,.05); letter-spacing:.5px; }
   .todo-empty { padding:20px; text-align:center; color:var(--text-dim); font-size:13px; }
+
+  /* ── 密碼遮罩 ── */
+  #lock-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #1c2340 0%, #2a3560 60%, #1a4040 100%);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+  #lock-screen.hide { opacity: 0; pointer-events: none; }
+  .lock-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 360px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .lock-logo {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, #F59800, #ffb733);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 32px; margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(245,152,0,0.4);
+  }
+  .lock-title { color: #fff; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .lock-sub { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 32px; }
+  .lock-input {
+    width: 100%; padding: 14px 16px; border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: #fff; font-size: 16px; letter-spacing: 2px;
+    outline: none; margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .lock-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; }
+  .lock-input:focus { border-color: #F59800; }
+  .lock-btn {
+    width: 100%; padding: 14px; border-radius: 10px; border: none;
+    background: linear-gradient(90deg, #F59800, #ffb733);
+    color: #fff; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .lock-btn:hover { opacity: 0.9; }
+  .lock-err {
+    color: #ff6b6b; font-size: 13px; margin-top: 12px;
+    min-height: 18px; transition: opacity 0.2s;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)} 60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+  .lock-input.shake { animation: shake 0.4s ease; border-color: #ff6b6b; }
 </style>
 </head>
 <body>
+
+<!-- ── 密碼遮罩 ── -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo">🏠</div>
+    <div class="lock-title">優動到你家</div>
+    <div class="lock-sub">營運管理儀表板 · 內部使用</div>
+    <input id="lock-input" class="lock-input" type="password" placeholder="請輸入密碼" autocomplete="off" />
+    <button class="lock-btn" onclick="_lockSubmit()">進入儀表板</button>
+    <div id="lock-err" class="lock-err"></div>
+  </div>
+</div>
 
 <!-- ── 品牌頂部色條 ── -->
 <div style="height:3px;background:linear-gradient(90deg,#F59800 0%,#ffb733 40%,#3CBFB6 100%);"></div>
@@ -2304,6 +2371,44 @@ function _ptperfLoad() {
   }).join('');
 }
 
+</script>
+
+<script>
+// ── 密碼遮罩邏輯 ──
+(function(){
+  const PW = 'ptcoachhome2026';
+  const KEY = 'yd_auth';
+  var lock = document.getElementById('lock-screen');
+  // 已驗證過（本次瀏覽器開著期間）直接跳過
+  if (sessionStorage.getItem(KEY) === '1') {
+    lock.style.display = 'none';
+    return;
+  }
+  // Enter 鍵觸發
+  document.getElementById('lock-input').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') _lockSubmit();
+  });
+  // 自動 focus
+  setTimeout(function(){ document.getElementById('lock-input').focus(); }, 100);
+})();
+
+function _lockSubmit() {
+  var input = document.getElementById('lock-input');
+  var err   = document.getElementById('lock-err');
+  if (input.value === 'ptcoachhome2026') {
+    sessionStorage.setItem('yd_auth', '1');
+    var lock = document.getElementById('lock-screen');
+    lock.classList.add('hide');
+    setTimeout(function(){ lock.style.display = 'none'; }, 420);
+  } else {
+    err.textContent = '密碼錯誤，請再試一次';
+    input.classList.remove('shake');
+    void input.offsetWidth; // 重置動畫
+    input.classList.add('shake');
+    input.value = '';
+    setTimeout(function(){ input.classList.remove('shake'); }, 500);
+  }
+}
 </script>
 </body>
 </html>
