@@ -2376,7 +2376,7 @@ function _ptperfLoad() {
 <script>
 // ── 密碼遮罩邏輯 ──
 (function(){
-  const PW = 'ptcoachhome2026';
+  const PW = 'irbd';
   const KEY = 'yd_auth';
   var lock = document.getElementById('lock-screen');
   // 已驗證過（本次瀏覽器開著期間）直接跳過
@@ -2395,7 +2395,7 @@ function _ptperfLoad() {
 function _lockSubmit() {
   var input = document.getElementById('lock-input');
   var err   = document.getElementById('lock-err');
-  if (input.value === 'ptcoachhome2026') {
+  if (input.value === 'irbd') {
     sessionStorage.setItem('yd_auth', '1');
     var lock = document.getElementById('lock-screen');
     lock.classList.add('hide');
